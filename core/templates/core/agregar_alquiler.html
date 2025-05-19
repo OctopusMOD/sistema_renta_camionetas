@@ -1,0 +1,19 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Agregar Alquiler{% endblock %}
+
+{% block content %}
+    <h1>Agregar Alquiler</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        {% if form.errors %}
+            <p class="error">{{ form.errors }}</p>
+        {% endif %}
+        {% if error %}
+            <p class="error">{{ error }}</p>
+        {% endif %}
+        <button type="submit">Guardar Alquiler</button>
+    </form>
+    <a href="{% url 'lista_alquileres' %}">Volver</a>
+{% endblock %}

@@ -1,0 +1,20 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Lista de Vehículos{% endblock %}
+
+{% block content %}
+    <h1>Lista de Vehículos</h1>
+    <a href="{% url 'agregar_vehiculo' %}">Agregar Vehículo</a>
+    <ul>
+        {% for vehiculo in vehiculos %}
+            <li>
+                {{ vehiculo.marca }} {{ vehiculo.modelo }} ({{ vehiculo.anio }}) - Placa: {{ vehiculo.placa }} - Estado: {{ vehiculo.estado }}
+                <a href="{% url 'detalle_vehiculo' vehiculo.id %}">Ver</a>
+                <a href="{% url 'editar_vehiculo' vehiculo.id %}">Editar</a>
+                <a href="{% url 'eliminar_vehiculo' vehiculo.id %}">Eliminar</a>
+            </li>
+        {% empty %}
+            <li>No hay vehículos registrados.</li>
+        {% endfor %}
+    </ul>
+{% endblock %}

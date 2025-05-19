@@ -1,0 +1,15 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Detalles del Vehículo{% endblock %}
+
+{% block content %}
+    <h1>Detalles del Vehículo</h1>
+    <p><strong>Marca:</strong> {{ vehiculo.marca }}</p>
+    <p><strong>Modelo:</strong> {{ vehiculo.modelo }}</p>
+    <p><strong>Año:</strong> {{ vehiculo.anio }}</p>
+    <p><strong>Placa:</strong> {{ vehiculo.placa }}</p>
+    <p><strong>Estado:</strong> {{ vehiculo.estado }}</p>
+    <a href="{% url 'editar_vehiculo' vehiculo.id %}">Editar</a>
+    <a href="{% url 'eliminar_vehiculo' vehiculo.id %}">Eliminar</a>
+    <a href="{% url 'lista_vehiculos' %}">Volver</a>
+{% endblock %}

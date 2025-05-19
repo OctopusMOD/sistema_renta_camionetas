@@ -1,0 +1,18 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Lista de Alquileres{% endblock %}
+
+{% block content %}
+    <h1>Lista de Alquileres</h1>
+    <a href="{% url 'agregar_alquiler' %}">Agregar Alquiler</a>
+    <ul>
+        {% for alquiler in alquileres %}
+            <li>
+                {{ alquiler }} - Inicio: {{ alquiler.fecha_inicio }} - Fin: {{ alquiler.fecha_fin }} - Costo: ${{ alquiler.costo_total }}
+                <a href="{% url 'devolver_alquiler' alquiler.id %}">Devolver</a>
+            </li>
+        {% empty %}
+            <li>No hay alquileres registrados.</li>
+        {% endfor %}
+    </ul>
+{% endblock %}
