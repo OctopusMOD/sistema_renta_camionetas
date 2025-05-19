@@ -1,0 +1,13 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Eliminar Mantenimiento{% endblock %}
+
+{% block content %}
+    <h1>Eliminar Mantenimiento</h1>
+    <p>¿Estás seguro de que deseas eliminar el mantenimiento: {{ mantenimiento }}?</p>
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn">Confirmar Eliminación</button>
+    </form>
+    <a href="{% url 'lista_mantenimientos' %}" class="btn">Cancelar</a>
+{% endblock %}

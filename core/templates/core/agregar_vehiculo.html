@@ -1,0 +1,13 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Agregar Vehículo{% endblock %}
+
+{% block content %}
+    <h1>Agregar Vehículo</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Guardar Vehículo</button>
+    </form>
+    <a href="{% url 'lista_vehiculos' %}">Volver</a>
+{% endblock %}

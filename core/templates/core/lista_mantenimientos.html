@@ -1,0 +1,49 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Lista de Mantenimientos{% endblock %}
+
+{% block content %}
+    <h1>Lista de Mantenimientos</h1>
+    <a href="{% url 'agregar_mantenimiento' %}" class="btn">Agregar Mantenimiento</a>
+    {% if mantenimientos %}
+        <table border="1">
+            <thead>
+                <tr>
+                    <th>Vehículo</th>
+                    <th>Taller</th>
+                    <th>Fecha Inicio</th>
+                    <th>Fecha Fin</th>
+                    <th>Descripción</th>
+                    <th>Estado</th>
+                    <th>Líneas de Trabajo</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for mantenimiento in mantenimientos %}
+                    <tr>
+                        <td>{{ mantenimiento.vehiculo }}</td>
+                        <td>{{ mantenimiento.taller }}</td>
+                        <td>{{ mantenimiento.fecha_inicio }}</td>
+                        <td>{{ mantenimiento.fecha_fin }}</td>
+                        <td>{{ mantenimiento.descripcion }}</td>
+                        <td>{{ mantenimiento.estado }}</td>
+                        <td>
+                            {% for linea in mantenimiento.lineatrabajo_set.all %}
+                                {{ linea.descripcion }} (Cant: {{ linea.cantidad }}, Valor: ${{ linea.valor_unitario }}<br>
+                            {% empty %}
+                                Ninguna
+                            {% endfor %}
+                        </td>
+                        <td>
+                            <a href="{% url 'editar_mantenimiento' mantenimiento.id %}" class="btn">Editar</a>
+                            <a href="{% url 'eliminar_mantenimiento' mantenimiento.id %}" class="btn">Eliminar</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No hay mantenimientos registrados.</p>
+    {% endif %}
+{% endblock %}
