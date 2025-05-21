@@ -3,120 +3,147 @@
 {% block title %}Agregar Mantenimiento{% endblock %}
 
 {% block content %}
-    <h1>Agregar Mantenimiento</h1>
-    <form method="post" id="mantenimiento-form" onsubmit="return validarFormulario()">
+<div class="container">
+    <h1 class="mb-4">Agregar Mantenimiento</h1>
+
+    <form method="post" id="mantenimiento-form" onsubmit="return validarFormulario()" enctype="multipart/form-data">
         {% csrf_token %}
-        {{ form.as_p }}
-        <h3>Líneas de Trabajo</h3>
-        {{ formset.management_form }}
-        <div id="formset-container">
-            {% for form in formset %}
-                <div class="formset-row">
+
+        <fieldset class="border p-3 mb-4">
+            <legend class="w-auto px-2">Datos del Mantenimiento</legend>
+            {{ form.as_p }}
+        </fieldset>
+
+        <fieldset class="border p-3 mb-4">
+            <legend class="w-auto px-2">Líneas de Trabajo</legend>
+            {{ formset_lineas.management_form }}
+            
+            <div id="empty-form-template" style="display: none;">
+                <div class="formset-row mb-3 border p-2">
+                    {{ formset_lineas.empty_form.as_p|safe }}
+                    <button type="button" class="btn btn-danger btn-sm remove-row mt-2">Eliminar</button>
+                </div>
+            </div>
+
+            <div id="formset-container">
+                {% for form in formset_lineas %}
+                    <div class="formset-row mb-3 border p-2">
+                        {{ form.as_p }}
+                        {% if not forloop.first %}
+                            <button type="button" class="btn btn-danger btn-sm remove-row mt-2">Eliminar</button>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+
+            <button type="button" id="add-row" class="btn btn-primary btn-sm">Agregar Línea de Trabajo</button>
+        </fieldset>
+
+        <fieldset class="border p-3 mb-4">
+            <legend class="w-auto px-2">Repuestos desde Inventario</legend>
+            {{ formset_repuestos.management_form }}
+            {% for form in formset_repuestos %}
+                <div class="form-group mb-3">
                     {{ form.as_p }}
-                    {% if not forloop.first %}
-                        <button type="button" class="btn remove-row">Eliminar</button>
-                    {% endif %}
                 </div>
             {% endfor %}
-        </div>
-        <button type="button" id="add-row" class="btn">Agregar Línea de Trabajo</button>
-        <button type="submit" class="btn">Guardar Mantenimiento</button>
+        </fieldset>
+
+        <fieldset class="border p-3 mb-4">
+            <legend class="w-auto px-2">Repuestos Libres (no vinculados a inventario)</legend>
+            {{ formset_libres.management_form }}
+            {% for form in formset_libres %}
+                <div class="form-group mb-3">
+                    {{ form.as_p }}
+                </div>
+            {% endfor %}
+        </fieldset>
+
+        <button type="submit" class="btn btn-success">Guardar Mantenimiento</button>
+        <a href="{% url 'lista_mantenimientos' %}" class="btn btn-secondary">Cancelar</a>
     </form>
-    <a href="{% url 'lista_mantenimientos' %}" class="btn">Cancelar</a>
+</div>
 {% endblock %}
 
+{% block extra_js %}
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Función para validar las fechas y campos requeridos
-        function validarFormulario() {
-            const fechaInicio = document.getElementById('id_fecha_inicio').value;
-            const fechaFin = document.getElementById('id_fecha_fin').value;
+document.addEventListener('DOMContentLoaded', function () {
+    const formsetContainer = document.getElementById('formset-container');
+    const totalForms = document.getElementById('id_form-TOTAL_FORMS');
+    const addRowButton = document.getElementById('add-row');
+    const emptyFormTemplate = document.querySelector('#empty-form-template .formset-row');
 
-            if (!fechaInicio || !fechaFin) {
-                alert('Por favor, completa las fechas de inicio y fin.');
-                return false;
-            }
+    function updateElementIndex(el, prefix, index) {
+        if (el.name) el.name = el.name.replace(new RegExp(`${prefix}-\\d+-`), `${prefix}-${index}-`);
+        if (el.id) el.id = el.id.replace(new RegExp(`${prefix}-\\d+-`), `${prefix}-${index}-`);
+        const label = el.closest('p')?.querySelector('label');
+        if (label && label.htmlFor) label.htmlFor = label.htmlFor.replace(new RegExp(`${prefix}-\\d+-`), `${prefix}-${index}-`);
+    }
 
-            const fechaInicioDate = new Date(fechaInicio);
-            const fechaFinDate = new Date(fechaFin);
-            if (fechaFinDate < fechaInicioDate) {
-                alert('La fecha de fin no puede ser anterior a la fecha de inicio.');
-                return false;
-            }
+    if (addRowButton) {
+        addRowButton.addEventListener('click', function () {
+            const formCount = parseInt(totalForms.value);
+            const newRow = emptyFormTemplate.cloneNode(true);
+            const inputs = newRow.querySelectorAll('input, select, textarea');
 
-            const formsetRows = document.querySelectorAll('.formset-row');
-            for (let row of formsetRows) {
-                const descripcion = row.querySelector('input[id*="descripcion"]').value;
-                const cantidad = row.querySelector('input[id*="cantidad"]').value;
-                const valorUnitario = row.querySelector('input[id*="valor_unitario"]').value;
-
-                if (!descripcion || !cantidad || !valorUnitario) {
-                    alert('Por favor, completa todos los campos de las líneas de trabajo.');
-                    return false;
-                }
-
-                if (cantidad <= 0 || valorUnitario <= 0) {
-                    alert('La cantidad y el valor unitario deben ser mayores que 0.');
-                    return false;
-                }
-            }
-
-            return true;
-        }
-
-        // Función para agregar una nueva fila
-        const addRowButton = document.getElementById('add-row');
-        if (addRowButton) {
-            addRowButton.addEventListener('click', function() {
-                const templateRow = document.querySelector('.formset-row');
-                if (!templateRow) {
-                    alert('No hay una fila para clonar.');
-                    return;
-                }
-
-                const newRow = templateRow.cloneNode(true);
-
-                const inputs = newRow.querySelectorAll('input');
-                inputs.forEach(input => {
-                    input.value = '';
-                    const oldId = input.id;
-                    const oldName = input.name;
-                    const totalForms = document.getElementById('id_form-TOTAL_FORMS');
-                    const currentTotal = parseInt(totalForms.value);
-                    const newIndex = currentTotal;
-                    totalForms.value = currentTotal + 1;
-
-                    const newId = oldId.replace(/-\d+-/, '-' + newIndex + '-');
-                    const newName = oldName.replace(/-\d+-/, '-' + newIndex + '-');
-                    input.id = newId;
-                    input.name = newName;
-                });
-
-                const removeButton = document.createElement('button');
-                removeButton.type = 'button';
-                removeButton.className = 'btn remove-row';
-                removeButton.textContent = 'Eliminar';
-                newRow.appendChild(removeButton);
-
-                document.getElementById('formset-container').appendChild(newRow);
-
-                removeButton.addEventListener('click', function() {
-                    newRow.remove();
-                    totalForms.value = parseInt(totalForms.value) - 1;
-                });
+            inputs.forEach(input => {
+                updateElementIndex(input, 'form', formCount);
+                if (input.type !== 'hidden') input.value = '';
             });
-        } else {
-            console.error('No se encontró el botón con id="add-row".');
-        }
 
-        // Añadir evento para eliminar filas existentes
-        document.querySelectorAll('.remove-row').forEach(button => {
-            button.addEventListener('click', function() {
-                const row = this.parentElement;
-                row.remove();
-                const totalForms = document.getElementById('id_form-TOTAL_FORMS');
-                totalForms.value = parseInt(totalForms.value) - 1;
+            const removeButton = newRow.querySelector('.remove-row');
+            removeButton.addEventListener('click', function () {
+                newRow.remove();
+                totalForms.value = document.querySelectorAll('.formset-row').length;
             });
+
+            formsetContainer.appendChild(newRow);
+            totalForms.value = formCount + 1;
+        });
+    }
+
+    document.querySelectorAll('.remove-row').forEach(button => {
+        button.addEventListener('click', function () {
+            this.closest('.formset-row').remove();
+            totalForms.value = document.querySelectorAll('.formset-row').length;
         });
     });
+
+    window.validarFormulario = function () {
+        const fechaInicio = document.getElementById('id_fecha_inicio').value;
+        const fechaFin = document.getElementById('id_fecha_fin').value;
+
+        if (!fechaInicio || !fechaFin) {
+            alert('Por favor, completa las fechas de inicio y fin.');
+            return false;
+        }
+
+        if (new Date(fechaFin) < new Date(fechaInicio)) {
+            alert('La fecha de fin no puede ser anterior a la fecha de inicio.');
+            return false;
+        }
+
+        const formsetRows = document.querySelectorAll('.formset-row');
+        for (let row of formsetRows) {
+            const descripcion = row.querySelector('input[name$="descripcion"]');
+            const cantidad = row.querySelector('input[name$="cantidad"]');
+            const valorUnitario = row.querySelector('input[name$="valor_unitario"]');
+
+            if (!descripcion || !cantidad || !valorUnitario) continue;
+
+            if (!descripcion.value || !cantidad.value || !valorUnitario.value) {
+                alert('Por favor, completa todos los campos de las líneas de trabajo.');
+                return false;
+            }
+
+            if (parseFloat(cantidad.value) <= 0 || parseFloat(valorUnitario.value) <= 0) {
+                alert('La cantidad y el valor unitario deben ser mayores que 0.');
+                return false;
+            }
+        }
+
+        return true;
+    };
+});
 </script>
+{% endblock %}

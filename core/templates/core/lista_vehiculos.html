@@ -8,7 +8,7 @@
     <ul>
         {% for vehiculo in vehiculos %}
             <li>
-                {{ vehiculo.marca }} {{ vehiculo.modelo }} ({{ vehiculo.anio }}) - Placa: {{ vehiculo.placa }} - Estado: {{ vehiculo.estado }}
+                {{ vehiculo.marca }} {{ vehiculo.modelo }} ({{ vehiculo.anio }}) - patente: {{ vehiculo.patente }} - Estado: {{ vehiculo.estado }}
                 <a href="{% url 'detalle_vehiculo' vehiculo.id %}">Ver</a>
                 <a href="{% url 'editar_vehiculo' vehiculo.id %}">Editar</a>
                 <a href="{% url 'eliminar_vehiculo' vehiculo.id %}">Eliminar</a>

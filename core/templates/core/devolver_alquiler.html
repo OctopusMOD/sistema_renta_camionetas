@@ -4,7 +4,7 @@
 
 {% block content %}
     <h1>Devolver Alquiler</h1>
-    <p>¿Estás seguro de que deseas devolver el alquiler de {{ alquiler.vehiculo.placa }} para {{ alquiler.cliente.nombre }}?</p>
+    <p>¿Estás seguro de que deseas devolver el alquiler de {{ alquiler.vehiculo.patente }} para {{ alquiler.cliente.nombre }}?</p>
     <form method="post">
         {% csrf_token %}
         <button type="submit">Devolver</button>

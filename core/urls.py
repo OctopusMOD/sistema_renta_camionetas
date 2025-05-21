@@ -2,6 +2,7 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
+    path('', views.login_view, name='login'),  # raíz apunta a login_view
     path('vehiculos/', views.lista_vehiculos, name='lista_vehiculos'),
     path('agregar_vehiculo/', views.agregar_vehiculo, name='agregar_vehiculo'),
     path('vehiculo/<int:pk>/', views.detalle_vehiculo, name='detalle_vehiculo'),
@@ -14,7 +15,7 @@ urlpatterns = [
     path('agregar_alquiler/', views.agregar_alquiler, name='agregar_alquiler'),
     path('alquiler/<int:pk>/devolver/', views.devolver_alquiler, name='devolver_alquiler'),
     path('mantenimientos/', views.lista_mantenimientos, name='lista_mantenimientos'),
-    path('agregar_mantenimiento/', views.agregar_mantenimiento, name='agregar_mantenimiento'),
     path('mantenimiento/<int:pk>/editar/', views.editar_mantenimiento, name='editar_mantenimiento'),
     path('mantenimiento/<int:pk>/eliminar/', views.eliminar_mantenimiento, name='eliminar_mantenimiento'),
+    path('mantenimientos/agregar/', views.agregar_mantenimiento, name='agregar_mantenimiento'),    
 ]
