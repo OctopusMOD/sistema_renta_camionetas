@@ -1,20 +1,90 @@
 {% extends 'core/base.html' %}
 
-{% block title %}Lista de Vehículos{% endblock %}
+{% block title %}Vehículos{% endblock %}
 
 {% block content %}
-    <h1>Lista de Vehículos</h1>
-    <a href="{% url 'agregar_vehiculo' %}">Agregar Vehículo</a>
-    <ul>
-        {% for vehiculo in vehiculos %}
-            <li>
-                {{ vehiculo.marca }} {{ vehiculo.modelo }} ({{ vehiculo.anio }}) - patente: {{ vehiculo.patente }} - Estado: {{ vehiculo.estado }}
-                <a href="{% url 'detalle_vehiculo' vehiculo.id %}">Ver</a>
-                <a href="{% url 'editar_vehiculo' vehiculo.id %}">Editar</a>
-                <a href="{% url 'eliminar_vehiculo' vehiculo.id %}">Eliminar</a>
-            </li>
-        {% empty %}
-            <li>No hay vehículos registrados.</li>
-        {% endfor %}
-    </ul>
+<div class="container mt-5">
+    <h1 class="mb-4">Gestión de Vehículos</h1>
+
+    <!-- Botones de Acción -->
+    <div class="mb-4">
+        <a href="{% url 'agregar_vehiculo' %}" class="btn btn-success btn-sm me-2">Agregar Vehículo</a>
+        <a href="#" class="btn btn-danger btn-sm me-2" data-bs-toggle="modal" data-bs-target="#eliminarVehiculoModal">Eliminar Vehículo</a>
+        <a href="{% url 'lista_flota_activa' %}" class="btn btn-primary btn-sm me-2">Lista de Flota Activa</a>
+        <a href="{% url 'gestion_categorias' %}" class="btn btn-warning btn-sm">Agregar o Eliminar Categorías</a>
+    </div>
+
+    <!-- Lista de Vehículos -->
+    {% if vehiculos %}
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Placa Patente</th>
+                    <th>Marca</th>
+                    <th>Modelo</th>
+                    <th>Año</th>
+                    <th>Kilometraje</th>
+                    <th>Color</th>
+                    <th>Combustible</th>
+                    <th>Transmisión</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for vehiculo in vehiculos %}
+                    <tr>
+                        <td>{{ vehiculo.patente }}</td>
+                        <td>{{ vehiculo.marca }}</td>
+                        <td>{{ vehiculo.modelo }}</td>
+                        <td>{{ vehiculo.anio }}</td>
+                        <td>{{ vehiculo.kilometraje }} km</td>
+                        <td>{{ vehiculo.color }}</td>
+                        <td>{{ vehiculo.combustible }}</td>
+                        <td>{{ vehiculo.transmision }}</td>
+                        <td>{{ vehiculo.estado }}</td>
+                        <td>
+                            <a href="{% url 'detalle_vehiculo' vehiculo.pk %}" class="btn btn-info btn-sm">Detalle</a>
+                            <a href="{% url 'editar_vehiculo' vehiculo.pk %}" class="btn btn-warning btn-sm">Editar</a>
+                            <a href="{% url 'eliminar_vehiculo' vehiculo.pk %}" class="btn btn-danger btn-sm">Eliminar</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No hay vehículos registrados.</p>
+    {% endif %}
+</div>
+
+<!-- Modal para Eliminar Vehículo (Placeholder) -->
+<div class="modal fade" id="eliminarVehiculoModal" tabindex="-1" aria-labelledby="eliminarVehiculoModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="eliminarVehiculoModalLabel">Eliminar Vehículo</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Seleccione un vehículo para eliminar o confirme la eliminación.</p>
+                <!-- Aquí se puede agregar un formulario dinámico más adelante -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-danger" id="confirmarEliminar">Eliminar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.getElementById('confirmarEliminar').addEventListener('click', function() {
+        // Lógica para eliminar (a implementar con un formulario real)
+        alert('Función de eliminación no implementada aún. Seleccione un vehículo específico.');
+        $('#eliminarVehiculoModal').modal('hide');
+    });
+</script>
 {% endblock %}

@@ -1,0 +1,60 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Editar Producto{% endblock %}
+
+{% block content %}
+    <div class="container mt-5">
+        <h1 class="my-4 text-center">Editar Producto: {{ producto.nombre }}</h1>
+
+        <!-- Mensajes -->
+        {% if messages %}
+            <div class="mb-4">
+                {% for message in messages %}
+                    <div class="alert alert-{% if message.tags == 'success' %}success{% else %}danger{% endif %} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <div class="bg-light py-4 mb-4">
+            <form method="post" class="row g-3">
+                {% csrf_token %}
+                <div class="col-md-6">
+                    <label for="nombre" class="form-label">Nombre</label>
+                    <input type="text" name="nombre" id="nombre" class="form-control" value="{{ producto.nombre }}" required>
+                </div>
+                <div class="col-md-6">
+                    <label for="categoria" class="form-label">Categoría</label>
+                    <input type="text" name="categoria" id="categoria" class="form-control" value="{{ producto.categoria }}" required>
+                </div>
+                <div class="col-md-6">
+                    <label for="codigo_referencia" class="form-label">Código de Referencia</label>
+                    <input type="text" name="codigo_referencia" id="codigo_referencia" class="form-control" value="{{ producto.codigo_referencia }}" required>
+                </div>
+                <div class="col-md-6">
+                    <label for="valor_unitario" class="form-label">Valor Unitario</label>
+                    <input type="number" name="valor_unitario" id="valor_unitario" class="form-control" value="{{ producto.valor_unitario }}" step="0.01" required>
+                </div>
+                <div class="col-md-6">
+                    <label for="unidades" class="form-label">Unidades</label>
+                    <input type="number" name="unidades" id="unidades" class="form-control" value="{{ producto.unidades }}" required>
+                </div>
+                <div class="col-md-6">
+                    <label for="proveedor" class="form-label">Proveedor</label>
+                    <select name="proveedor" id="proveedor" class="form-select">
+                        <option value="">Sin proveedor</option>
+                        {% for proveedor in proveedores %}
+                            <option value="{{ proveedor.id }}" {% if producto.proveedor.id == proveedor.id %}selected{% endif %}>{{ proveedor.nombre }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-12 text-center mt-3">
+                    <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                    <a href="{% url 'bodega' %}" class="btn btn-secondary">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}

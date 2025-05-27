@@ -1,55 +1,75 @@
 {% extends 'core/base.html' %}
+{% load math_filters %}
 
 {% block title %}Lista de Mantenimientos{% endblock %}
 
 {% block content %}
-<div class="container">
-    <h1 class="my-4">Lista de Mantenimientos</h1>
+    <h1 class="my-4 text-center">Lista de Mantenimientos</h1>
 
-    <div class="mb-3">
-        <a href="{% url 'agregar_mantenimiento' %}" class="btn btn-primary">Agregar Mantenimiento</a>
+    <!-- Mostrar mensajes -->
+    {% if messages %}
+        <div class="mb-4">
+            {% for message in messages %}
+                <div class="alert alert-{% if message.tags == 'success' %}success{% else %}danger{% endif %} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <!-- Botones -->
+    <div class="mb-3 text-start">
+        <div class="d-flex gap-2">
+            <a href="{% url 'gestionar_talleres' %}" class="btn btn-secondary">Gestionar Talleres</a>
+            <a href="{% url 'lista_talleres' %}" class="btn btn-secondary">Lista de Talleres</a> <!-- Nuevo botón -->
+            <a href="{% url 'agregar_mantenimiento' %}" class="btn btn-primary">Agregar Mantenimiento</a>
+        </div>
     </div>
 
-    <form method="get" class="row g-3 mb-4">
-        <div class="col-md-2">
-            <label for="patente" class="form-label">Patente</label>
-            <input type="text" id="patente" name="patente" value="{{ query_patente }}" class="form-control">
-        </div>
+    <!-- Filtros Centrados -->
+    <div class="bg-light py-4 mb-4">
+        <form method="get" class="row row-cols-1 row-cols-md-6 g-3">
+            <div class="col">
+                <label for="patente" class="form-label">Patente</label>
+                <input type="text" id="patente" name="patente" value="{{ query_patente|default_if_none:'' }}" class="form-control">
+            </div>
 
-        <div class="col-md-2">
-            <label for="taller" class="form-label">Taller</label>
-            <input type="text" id="taller" name="taller" value="{{ query_taller }}" class="form-control">
-        </div>
+            <div class="col">
+                <label for="taller" class="form-label">Taller</label>
+                <input type="text" id="taller" name="taller" value="{{ query_taller|default_if_none:'' }}" class="form-control">
+            </div>
 
-        <div class="col-md-2">
-            <label for="fecha_inicio" class="form-label">Desde Fecha Inicio</label>
-            <input type="date" id="fecha_inicio" name="fecha_inicio" value="{{ query_fecha_inicio }}" class="form-control">
-        </div>
+            <div class="col">
+                <label for="fecha_inicio" class="form-label">Desde Fecha Ingreso</label>
+                <input type="date" id="fecha_inicio" name="fecha_inicio" value="{{ query_fecha_inicio|default_if_none:'' }}" class="form-control">
+            </div>
 
-        <div class="col-md-2">
-            <label for="fecha_fin" class="form-label">Hasta Fecha Fin</label>
-            <input type="date" id="fecha_fin" name="fecha_fin" value="{{ query_fecha_fin }}" class="form-control">
-        </div>
+            <div class="col">
+                <label for="fecha_fin" class="form-label">Hasta Fecha Fin</label>
+                <input type="date" id="fecha_fin" name="fecha_fin" value="{{ query_fecha_fin|default_if_none:'' }}" class="form-control">
+            </div>
 
-        <div class="col-md-2">
-            <label for="estado" class="form-label">Estado</label>
-            <select id="estado" name="estado" class="form-select">
-                <option value="">Todos</option>
-                <option value="pendiente" {% if query_estado == 'pendiente' %}selected{% endif %}>Pendiente</option>
-                <option value="en_progreso" {% if query_estado == 'en_progreso' %}selected{% endif %}>En progreso</option>
-                <option value="completado" {% if query_estado == 'completado' %}selected{% endif %}>Completado</option>
-            </select>
-        </div>
+            <div class="col">
+                <label for="confirmado" class="form-label">Estado</label>
+                <select id="confirmado" name="confirmado" class="form-select">
+                    <option value="false" {% if query_confirmado == 'false' %}selected{% endif %}>Pendientes</option>
+                    <option value="true" {% if query_confirmado == 'true' %}selected{% endif %}>Confirmados</option>
+                    <option value="all" {% if query_confirmado == 'all' %}selected{% endif %}>Todos</option>
+                </select>
+            </div>
 
-        <div class="col-md-2">
-            <label for="descripcion" class="form-label">Descripción</label>
-            <input type="text" id="descripcion" name="descripcion" value="{{ query_descripcion }}" class="form-control">
-        </div>
+            <div class="col">
+                <label for="observaciones" class="form-label">Observaciones</label>
+                <input type="text" id="observaciones" name="observaciones" value="{{ query_observaciones|default_if_none:'' }}" class="form-control">
+            </div>
 
-        <div class="col-12">
-            <button type="submit" class="btn btn-secondary">Filtrar</button>
-        </div>
-    </form>
+            <div class="col-12 text-center mt-3">
+                <button type="submit" class="btn btn-secondary me-2">Filtrar</button>
+                <a href="{% url 'lista_mantenimientos' %}" class="btn btn-secondary">Limpiar</a>
+            </div>
+        </form>
+    </div>
 
     {% if mantenimientos %}
         <div class="table-responsive">
@@ -58,36 +78,66 @@
                     <tr>
                         <th>Vehículo</th>
                         <th>Taller</th>
-                        <th>Fecha Inicio</th>
+                        <th>Tipo</th>
+                        <th>Fecha Ingreso</th>
                         <th>Fecha Fin</th>
-                        <th>Descripción</th>
                         <th>Estado</th>
+                        <th>Observaciones</th>
                         <th>Líneas de Trabajo</th>
+                        <th>Total</th>
                         <th>Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for mantenimiento in mantenimientos %}
                         <tr>
-                            <td>{{ mantenimiento.vehiculo }}</td>
-                            <td>{{ mantenimiento.taller }}</td>
-                            <td>{{ mantenimiento.fecha_inicio }}</td>
-                            <td>{{ mantenimiento.fecha_fin }}</td>
-                            <td>{{ mantenimiento.descripcion }}</td>
-                            <td>{{ mantenimiento.estado|title }}</td>
+                            <td>{{ mantenimiento.vehiculo.patente|default:"Sin vehículo" }}</td>
+                            <td>{{ mantenimiento.taller.nombre|default:"Sin taller" }}</td>
+                            <td>{{ mantenimiento.tipo|title|default:"Sin tipo" }}</td>
+                            <td>{{ mantenimiento.fecha_ingreso|date:"Y-m-d"|default:"Sin fecha" }}</td>
+                            <td>{{ mantenimiento.fecha_fin|date:"Y-m-d"|default:"Sin fecha" }}</td>
+                            <td>{{ mantenimiento.confirmado|yesno:"Confirmado,Pendiente" }}</td>
+                            <td>{{ mantenimiento.observaciones|default:"Sin observaciones" }}</td>
                             <td>
-                                {% for linea in mantenimiento.lineatrabajo_set.all %}
+                                {% for linea in mantenimiento.lineas_trabajo.all %}
                                     <div>
-                                        {{ linea.descripcion }}<br>
-                                        <small>Cant: {{ linea.cantidad }}, Valor: ${{ linea.valor_unitario }}</small>
+                                        {{ linea.descripcion|default:"Sin descripción" }}<br>
+                                        <small>Cant: {{ linea.cantidad|default:0 }}, Valor: ${{ linea.valor_unitario|default:0 }}</small>
                                     </div>
                                 {% empty %}
                                     <span class="text-muted">Ninguna</span>
                                 {% endfor %}
                             </td>
                             <td>
-                                <a href="{% url 'editar_mantenimiento' mantenimiento.id %}" class="btn btn-sm btn-warning mb-1">Editar</a>
-                                <a href="{% url 'eliminar_mantenimiento' mantenimiento.id %}" class="btn btn-sm btn-danger">Eliminar</a>
+                                {% with total=0 %}
+                                    {% for linea in mantenimiento.lineas_trabajo.all %}
+                                        {% with subtotal=linea.cantidad|floatformat:0|add:0|floatformat:2 %}
+                                            {% with valor=linea.valor_unitario|floatformat:0|add:0|floatformat:2 %}
+                                                {% with linea_total=subtotal|multiply:valor %}
+                                                    {% with total=total|add:linea_total %}
+                                                    {% endwith %}
+                                                {% endwith %}
+                                            {% endwith %}
+                                        {% endwith %}
+                                    {% endfor %}
+                                    {% for repuesto in mantenimiento.repuestos.all %}
+                                        {% with subtotal=repuesto.cantidad|floatformat:0|add:0|floatformat:2 %}
+                                            {% with valor=repuesto.valor_unitario|floatformat:0|add:0|floatformat:2 %}
+                                                {% with repuesto_total=subtotal|multiply:valor %}
+                                                    {% with total=total|add:repuesto_total %}
+                                                    {% endwith %}
+                                                {% endwith %}
+                                            {% endwith %}
+                                        {% endwith %}
+                                    {% endfor %}
+                                    ${{ total|floatformat:2 }}
+                                {% endwith %}
+                            </td>
+                            <td>
+                                {% if not mantenimiento.confirmado %}
+                                    <a href="{% url 'editar_mantenimiento' pk=mantenimiento.pk %}" class="btn btn-sm btn-warning mb-1">Editar</a>
+                                {% endif %}
+                                <a href="{% url 'eliminar_mantenimiento' pk=mantenimiento.pk %}" class="btn btn-sm btn-danger" onclick="return confirm('¿Estás seguro de que deseas eliminar este mantenimiento?')">Eliminar</a>
                             </td>
                         </tr>
                     {% endfor %}
@@ -97,5 +147,4 @@
     {% else %}
         <div class="alert alert-info">No hay mantenimientos registrados.</div>
     {% endif %}
-</div>
 {% endblock %}

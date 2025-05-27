@@ -1,0 +1,136 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Agregar Proveedor{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="card shadow-sm p-4" style="max-width: 700px; margin: 0 auto; border-radius: 10px; background-color: #f8f9fa;">
+        <h2 class="text-center mb-4" style="color: #2c3e50;">Agregar Proveedor</h2>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show text-center mb-4" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <form method="post" class="needs-validation" novalidate>
+            {% csrf_token %}
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="id_rut" class="form-label fw-bold" style="color: #34495e;">RUT <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="id_rut" name="rut" maxlength="12" required
+                               placeholder="Ej: 12.345.678-9" pattern="\d{1,2}\.\d{3}\.\d{3}-[\dKk]{1}">
+                        {% if form.rut.errors %}
+                            <div class="text-danger">{{ form.rut.errors }}</div>
+                        {% endif %}
+                        <div class="invalid-feedback">Ingresa un RUT válido (formato: XX.XXX.XXX-X).</div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="id_nombre" class="form-label fw-bold" style="color: #34495e;">Nombre Comercial <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="id_nombre" name="nombre" maxlength="100" required>
+                        {% if form.nombre.errors %}
+                            <div class="text-danger">{{ form.nombre.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="id_telefono" class="form-label" style="color: #34495e;">Teléfono</label>
+                        <input type="tel" class="form-control" id="id_telefono" name="telefono" maxlength="15"
+                               placeholder="Ej: +56912345678" pattern="\+?\d{9,15}">
+                        {% if form.telefono.errors %}
+                            <div class="text-danger">{{ form.telefono.errors }}</div>
+                        {% endif %}
+                        <div class="invalid-feedback">Ingresa un teléfono válido (ej: +56912345678).</div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="id_correo" class="form-label" style="color: #34495e;">Correo Electrónico</label>
+                        <input type="email" class="form-control" id="id_correo" name="correo" maxlength="100"
+                               placeholder="Ej: proveedor@ejemplo.com">
+                        {% if form.correo.errors %}
+                            <div class="text-danger">{{ form.correo.errors }}</div>
+                        {% endif %}
+                        <div class="invalid-feedback">Ingresa un email válido.</div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="id_contacto" class="form-label" style="color: #34495e;">Nombre de Contacto</label>
+                        <input type="text" class="form-control" id="id_contacto" name="contacto" maxlength="100"
+                               placeholder="Nombre de la persona de contacto">
+                        {% if form.contacto.errors %}
+                            <div class="text-danger">{{ form.contacto.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="form-group">
+                        <label for="id_direccion" class="form-label" style="color: #34495e;">Dirección</label>
+                        <input type="text" class="form-control" id="id_direccion" name="direccion" maxlength="200"
+                               placeholder="Dirección del proveedor">
+                        {% if form.direccion.errors %}
+                            <div class="text-danger">{{ form.direccion.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-12 text-center mt-4">
+                    <button type="submit" class="btn btn-primary btn-lg" style="background-color: #27ae60; border: none;">Guardar Proveedor</button> <!-- Cambio de color a #27ae60 -->
+                    <a href="{% url 'lista_proveedores' %}" class="btn btn-secondary btn-lg ms-3" style="background-color: #7f8c8d; border: none;">Cancelar</a>
+                    <button type="reset" class="btn btn-warning btn-lg ms-3" style="background-color: #f39c12; border: none;">Limpiar</button> <!-- Agregado botón Limpiar -->
+                </div>
+            </div>
+            <p class="text-center mt-2"><em><span class="text-danger">*</span> Campos obligatorios</em></p>
+        </form>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    // Bootstrap validation
+    const forms = document.querySelectorAll('.needs-validation');
+    Array.from(forms).forEach(form => {
+        form.addEventListener('submit', event => {
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            form.classList.add('was-validated');
+        }, false);
+    });
+});
+</script>
+
+<style>
+    .card {
+        transition: box-shadow 0.3s ease;
+    }
+    .card:hover {
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    }
+    .form-control:focus {
+        border-color: #27ae60; <!-- Cambio de color a #27ae60 -->
+        box-shadow: 0 0 5px rgba(39, 174, 96, 0.5); <!-- Ajuste de sombra a #27ae60 -->
+    }
+    .btn-primary:hover {
+        background-color: #219653; <!-- Ajuste de hover a tono más oscuro de #27ae60 -->
+    }
+    .btn-secondary:hover {
+        background-color: #6c757d;
+    }
+    .btn-warning:hover {
+        background-color: #e67e22; <!-- Hover para el botón Limpiar -->
+    }
+    .invalid-feedback {
+        color: #e74c3c;
+    }
+</style>
+
+{% endblock %}

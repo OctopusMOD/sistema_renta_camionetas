@@ -1,19 +1,355 @@
 {% extends 'core/base.html' %}
+{% load static %}
 
 {% block title %}Agregar Alquiler{% endblock %}
 
 {% block content %}
-    <h1>Agregar Alquiler</h1>
-    <form method="post">
+<div class="mt-3"> <!-- Reducido de mt-5 a mt-3 -->
+    <h2 class="mb-3 text-center">Agregar Nuevo Alquiler</h2> <!-- Reducido de mb-4 a mb-3 -->
+
+    <!-- Mostrar mensajes de error o éxito -->
+    {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <!-- Mostrar errores del formulario -->
+    {% if form.errors %}
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <strong>Errores en el formulario:</strong>
+            <ul>
+                {% for field in form %}
+                    {% for error in field.errors %}
+                        <li>{{ field.label }}: {{ error }}</li>
+                    {% endfor %}
+                {% endfor %}
+                {% for error in form.non_field_errors %}
+                    <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    {% endif %}
+
+    <form method="post" action="" enctype="multipart/form-data">
         {% csrf_token %}
-        {{ form.as_p }}
-        {% if form.errors %}
-            <p class="error">{{ form.errors }}</p>
-        {% endif %}
-        {% if error %}
-            <p class="error">{{ error }}</p>
-        {% endif %}
-        <button type="submit">Guardar Alquiler</button>
+
+        <!-- Contenedor principal con dos columnas -->
+        <div class="row">
+            <!-- Columna izquierda: Formulario -->
+            <div class="col-md-8">
+                <!-- Encabezado Superior -->
+                <div class="row mb-3 align-items-center"> <!-- Reducido de mb-4 a mb-3 -->
+                    <!-- Esquina Superior Derecha -->
+                    <div class="col-md-6">
+                        <div class="card p-2"> <!-- Reducido de p-3 a p-2 -->
+                            <div class="form-group">
+                                <label for="{{ form.tipo_alquiler.id_for_label }}">Tipo de Alquiler</label>
+                                {{ form.tipo_alquiler }}
+                            </div>
+                            <div class="form-group">
+                                <label for="numero_alquiler">Número de {{ form.tipo_alquiler.value|default:'Contrato' }}</label>
+                                <input type="text" name="numero_alquiler" id="numero_alquiler" class="form-control" value="{{ alquiler.numero_alquiler|default:'' }}" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label for="{{ form.tipo_cliente.id_for_label }}">Tipo de Cliente</label>
+                                {{ form.tipo_cliente }}
+                            </div>
+                            <div class="form-group">
+                                <label for="{{ form.fecha_inicio.id_for_label }}">Fecha de Inicio</label>
+                                {{ form.fecha_inicio }}
+                            </div>
+                            <div class="form-group">
+                                <label for="{{ form.fecha_termino.id_for_label }}">Fecha de Término</label>
+                                {{ form.fecha_termino }}
+                                <div class="input-group mt-1"> <!-- Reducido de mt-2 a mt-1 -->
+                                    <button type="button" class="btn btn-secondary btn-sm" onclick="modificarFecha('restar')">Devolver Antes</button>
+                                    <button type="button" class="btn btn-secondary btn-sm" onclick="modificarFecha('sumar')">Aumentar Fecha</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Centro: RUT y Datos del Cliente -->
+                    <div class="col-md-6">
+                        <div class="card p-2"> <!-- Reducido de p-3 a p-2 -->
+                            <div class="form-group">
+                                <label for="{{ form.rut.id_for_label }}">RUT del Cliente</label>
+                                {{ form.rut }}
+                            </div>
+                            <div id="cliente_info" class="mt-2"> <!-- Reducido de mt-3 a mt-2 -->
+                                <p><strong>Nombre:</strong> <span id="cliente_nombre"></span></p>
+                                <p><strong>Dirección:</strong> <span id="cliente_direccion"></span></p>
+                                <p><strong>Contacto:</strong> <span id="cliente_contacto"></span></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Izquierda: Patente y Datos del Vehículo -->
+                    <div class="col-md-6 mt-3"> <!-- Reducido de mt-4 a mt-3 -->
+                        <div class="card p-2"> <!-- Reducido de p-3 a p-2 -->
+                            <div class="form-group">
+                                <label for="{{ form.vehiculo_patente.id_for_label }}">Patente del Vehículo</label>
+                                {{ form.vehiculo_patente }}
+                            </div>
+                            <div id="vehiculo_info" class="mt-2"> <!-- Reducido de mt-3 a mt-2 -->
+                                <p><strong>Modelo:</strong> <span id="vehiculo_modelo"></span></p>
+                                <p><strong>Año:</strong> <span id="vehiculo_ano"></span></p>
+                                <p><strong>Color:</strong> <span id="vehiculo_color"></span></p>
+                                <p><strong>VIN:</strong> <span id="vehiculo_vin"></span></p>
+                                <p><strong>Combustible:</strong> <span id="vehiculo_combustible"></span></p>
+                                <p><strong>Capacidad de Carga:</strong> <span id="vehiculo_capacidad_carga"></span></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Columna derecha: Resumen de Cobros -->
+            <div class="col-md-4">
+                <div class="card p-2"> <!-- Reducido de p-3 a p-2 -->
+                    <h5 class="card-title">Resumen de Cobros</h5>
+                    <div class="mb-2"> <!-- Reducido de mb-3 a mb-2 -->
+                        <label for="resumen-valor-diario-input">Valor Diario:</label>
+                        <input type="number" id="resumen-valor-diario-input" class="form-control" step="0.01" oninput="sincronizarValorDiario(this.value)">
+                        <span id="resumen-valor-diario">0</span> CLP
+                    </div>
+                    <div class="mb-2"> <!-- Reducido de mb-3 a mb-2 -->
+                        <label>Días de Alquiler:</label>
+                        <span id="resumen-dias-alquiler">0</span>
+                    </div>
+                    <div class="mb-2"> <!-- Reducido de mb-3 a mb-2 -->
+                        <label>Valor Total por Período:</label>
+                        <span id="resumen-valor-periodo">0</span> CLP
+                    </div>
+                    <div class="mb-2"> <!-- Reducido de mb-3 a mb-2 -->
+                        <label>Valor de Extras:</label>
+                        <span id="resumen-valor-extras">0</span> CLP
+                    </div>
+                    <div class="mb-2"> <!-- Reducido de mb-3 a mb-2 -->
+                        <label>Total sin IVA:</label>
+                        <span id="resumen-total-sin-iva">0</span> CLP
+                    </div>
+                    <div class="mb-2"> <!-- Reducido de mb-3 a mb-2 -->
+                        <label>Total con IVA (19%):</label>
+                        <span id="resumen-total-con-iva">0</span> CLP
+                    </div>
+                    <div class="mb-2"> <!-- Reducido de mb-3 a mb-2 -->
+                        <label>Garantía:</label>
+                        <span id="resumen-garantia">0</span> CLP
+                    </div>
+                    <div class="mb-2"> <!-- Reducido de mb-3 a mb-2 -->
+                        <label>Total a Pagar:</label>
+                        <span id="resumen-total-pagar">0</span> CLP
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pestañas a lo ancho de la página -->
+        <div class="card mb-3 mt-3"> <!-- Reducido de mb-4 mt-4 a mb-3 mt-3 -->
+            <ul class="nav nav-tabs" id="myTab" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="anotaciones-ocultas-tab" data-bs-toggle="tab" data-bs-target="#anotaciones-ocultas" type="button" role="tab" aria-controls="anotaciones-ocultas" aria-selected="true">Anotaciones Ocultas</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="anotaciones-publicas-tab" data-bs-toggle="tab" data-bs-target="#anotaciones-publicas" type="button" role="tab" aria-controls="anotaciones-publicas" aria-selected="false">Anotaciones Públicas</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="extras-tab" data-bs-toggle="tab" data-bs-target="#extras" type="button" role="tab" aria-controls="extras" aria-selected="false">Extras</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="facturas-tab" data-bs-toggle="tab" data-bs-target="#facturas" type="button" role="tab" aria-controls="facturas" aria-selected="false">Facturas</button>
+                </li>
+            </ul>
+            <div class="tab-content p-2" id="myTabContent"> <!-- Reducido de p-3 a p-2 -->
+                <!-- Anotaciones Ocultas -->
+                <div class="tab-pane fade show active" id="anotaciones-ocultas" role="tabpanel" aria-labelledby="anotaciones-ocultas-tab" tabindex="0">
+                    {{ form.anotaciones_internas }}
+                </div>
+                <!-- Anotaciones Públicas -->
+                <div class="tab-pane fade" id="anotaciones-publicas" role="tabpanel" aria-labelledby="anotaciones-publicas-tab" tabindex="0">
+                    {{ form.anotaciones_publicas }}
+                </div>
+                <!-- Extras -->
+                <div class="tab-pane fade" id="extras" role="tabpanel" aria-labelledby="extras-tab" tabindex="0">
+                    <!-- Tabla para agregar extras dinámicamente -->
+                    <table class="table table-bordered" id="extras-table">
+                        <thead>
+                            <tr>
+                                <th>Descripción</th>
+                                <th>Valor</th>
+                                <th>Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><input type="text" class="form-control extra-descripcion" name="extra_descripcion[]"></td>
+                                <td><input type="number" class="form-control extra-valor" name="extra_valor[]" step="0.01" oninput="calcularResumen()"></td>
+                                <td><button type="button" class="btn btn-danger btn-sm" onclick="eliminarFila(this)">Eliminar</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <button type="button" class="btn btn-secondary btn-sm" onclick="agregarFilaExtra()">Agregar Extra</button>
+                    <div class="mt-2"> <!-- Reducido de mt-3 a mt-2 -->
+                        {{ form.valor_diario.label_tag }} {{ form.valor_diario }}
+                        {{ form.garantia.label_tag }} {{ form.garantia }}
+                    </div>
+                </div>
+                <!-- Facturas -->
+                <div class="tab-pane fade" id="facturas" role="tabpanel" aria-labelledby="facturas-tab" tabindex="0">
+                    <p>Funcionalidad de facturas en desarrollo.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Botón de Envío -->
+        <div class="text-center mt-3"> <!-- Reducido de mt-4 a mt-3 -->
+            <button type="submit" class="btn btn-primary">Guardar Alquiler</button>
+            <a href="{% url 'lista_alquileres' %}" class="btn btn-secondary">Cancelar</a>
+        </div>
     </form>
-    <a href="{% url 'lista_alquileres' %}">Volver</a>
+</div>
+
+<!-- JavaScript para cálculos dinámicos -->
+<script>
+    // Función para modificar la fecha de término
+    function modificarFecha(accion) {
+        const fechaTerminoInput = document.querySelector('#{{ form.fecha_termino.id_for_label }}');
+        if (!fechaTerminoInput) {
+            console.error("No se encontró el campo de fecha de término.");
+            return;
+        }
+        let fechaTermino = new Date(fechaTerminoInput.value);
+        if (isNaN(fechaTermino)) {
+            fechaTermino = new Date();
+        }
+        if (accion === 'sumar') {
+            fechaTermino.setDate(fechaTermino.getDate() + 1);
+        } else if (accion === 'restar') {
+            fechaTermino.setDate(fechaTermino.getDate() - 1);
+        }
+        fechaTerminoInput.value = fechaTermino.toISOString().split('T')[0];
+        calcularResumen();
+    }
+
+    // Función para agregar una nueva fila a la tabla de extras
+    function agregarFilaExtra() {
+        const tbody = document.querySelector('#extras-table tbody');
+        const nuevaFila = document.createElement('tr');
+        nuevaFila.innerHTML = `
+            <td><input type="text" class="form-control extra-descripcion" name="extra_descripcion[]"></td>
+            <td><input type="number" class="form-control extra-valor" name="extra_valor[]" step="0.01" oninput="calcularResumen()"></td>
+            <td><button type="button" class="btn btn-danger btn-sm" onclick="eliminarFila(this)">Eliminar</button></td>
+        `;
+        tbody.appendChild(nuevaFila);
+    }
+
+    // Función para eliminar una fila de la tabla de extras
+    function eliminarFila(boton) {
+        boton.parentElement.parentElement.remove();
+        calcularResumen();
+    }
+
+    // Función para sincronizar el valor diario entre el Resumen de Cobros y el formulario
+    function sincronizarValorDiario(valor) {
+        const valorDiarioInput = document.querySelector('#{{ form.valor_diario.id_for_label }}');
+        valorDiarioInput.value = valor;
+        calcularResumen();
+    }
+
+    // Función para calcular el resumen de cobros en tiempo real
+    function calcularResumen() {
+        // Obtener valores del formulario
+        const valorDiarioInput = document.querySelector('#{{ form.valor_diario.id_for_label }}');
+        const fechaInicioInput = document.querySelector('#{{ form.fecha_inicio.id_for_label }}');
+        const fechaTerminoInput = document.querySelector('#{{ form.fecha_termino.id_for_label }}');
+        const garantiaInput = document.querySelector('#{{ form.garantia.id_for_label }}');
+        const extraValores = document.querySelectorAll('.extra-valor');
+        const resumenValorDiarioInput = document.querySelector('#resumen-valor-diario-input');
+
+        if (!valorDiarioInput || !fechaInicioInput || !fechaTerminoInput || !garantiaInput) {
+            console.error("No se encontraron los campos necesarios para calcular el resumen.");
+            return;
+        }
+
+        // Valor diario
+        const valorDiario = parseFloat(valorDiarioInput.value) || 0;
+        document.querySelector('#resumen-valor-diario').textContent = valorDiario.toLocaleString('es-CL');
+        resumenValorDiarioInput.value = valorDiario; // Sincronizar el input del resumen
+
+        // Calcular días de alquiler
+        const fechaInicio = new Date(fechaInicioInput.value);
+        const fechaTermino = new Date(fechaTerminoInput.value);
+        let diasAlquiler = 0;
+        if (!isNaN(fechaInicio) && !isNaN(fechaTermino) && fechaTermino >= fechaInicio) {
+            const diferenciaTiempo = fechaTermino - fechaInicio;
+            diasAlquiler = Math.ceil(diferenciaTiempo / (1000 * 60 * 60 * 24)) + 1; // +1 para incluir el día inicial
+        }
+        document.querySelector('#resumen-dias-alquiler').textContent = diasAlquiler;
+
+        // Valor total por período
+        const valorPeriodo = valorDiario * diasAlquiler;
+        document.querySelector('#resumen-valor-periodo').textContent = valorPeriodo.toLocaleString('es-CL');
+
+        // Valor de extras
+        let valorExtras = 0;
+        extraValores.forEach(input => {
+            const valor = parseFloat(input.value) || 0;
+            valorExtras += valor;
+        });
+        document.querySelector('#resumen-valor-extras').textContent = valorExtras.toLocaleString('es-CL');
+
+        // Total sin IVA
+        const totalSinIva = valorPeriodo + valorExtras;
+        document.querySelector('#resumen-total-sin-iva').textContent = totalSinIva.toLocaleString('es-CL');
+
+        // Total con IVA (19%)
+        const iva = totalSinIva * 0.19;
+        const totalConIva = totalSinIva + iva;
+        document.querySelector('#resumen-total-con-iva').textContent = totalConIva.toLocaleString('es-CL');
+
+        // Garantía
+        const garantia = parseFloat(garantiaInput.value) || 0;
+        document.querySelector('#resumen-garantia').textContent = garantia.toLocaleString('es-CL');
+
+        // Total a pagar
+        const totalPagar = totalConIva + garantia;
+        document.querySelector('#resumen-total-pagar').textContent = totalPagar.toLocaleString('es-CL');
+    }
+
+    // Forzar inicialización de las pestañas
+    document.addEventListener('DOMContentLoaded', function() {
+        try {
+            // Inicializar las pestañas de Bootstrap
+            const tabList = document.querySelectorAll('#myTab button[data-bs-toggle="tab"]');
+            if (tabList.length === 0) {
+                console.error("No se encontraron pestañas para inicializar.");
+            } else {
+                tabList.forEach(tab => {
+                    tab.addEventListener('click', function (event) {
+                        event.preventDefault();
+                        const bsTab = new bootstrap.Tab(tab);
+                        bsTab.show();
+                    });
+                });
+            }
+
+            // Ejecutar cálculo inicial y agregar listeners
+            calcularResumen();
+            const inputs = document.querySelectorAll('#{{ form.valor_diario.id_for_label }}, #{{ form.fecha_inicio.id_for_label }}, #{{ form.fecha_termino.id_for_label }}, #{{ form.garantia.id_for_label }}');
+            inputs.forEach(input => {
+                input.addEventListener('input', calcularResumen);
+            });
+        } catch (error) {
+            console.error("Error al inicializar las pestañas o el formulario:", error);
+        }
+    });
+</script>
 {% endblock %}

@@ -1,0 +1,193 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Gestionar Talleres{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="card shadow-sm p-4" style="max-width: 900px; margin: 0 auto; border-radius: 10px; background-color: #f8f9fa;">
+        <h2 class="text-center mb-4" style="color: #2c3e50;">Gestionar Talleres</h2>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show text-center mb-4" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <form method="post" class="needs-validation" novalidate>
+            {% csrf_token %}
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="id_rut" class="form-label fw-bold" style="color: #34495e;">RUT <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="id_rut" name="rut" maxlength="12" required
+                               placeholder="Ej: 12.345.678-9" pattern="\d{1,2}\.\d{3}\.\d{3}-[\dKk]{1}">
+                        {% if form.rut.errors %}
+                            <div class="text-danger">{{ form.rut.errors }}</div>
+                        {% endif %}
+                        <div class="invalid-feedback">Ingresa un RUT válido (formato: XX.XXX.XXX-X).</div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="id_nombre_legal" class="form-label fw-bold" style="color: #34495e;">Nombre Legal <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="id_nombre_legal" name="nombre_legal" maxlength="100" required>
+                        {% if form.nombre_legal.errors %}
+                            <div class="text-danger">{{ form.nombre_legal.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="id_nombre_comercial" class="form-label fw-bold" style="color: #34495e;">Nombre Comercial <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="id_nombre_comercial" name="nombre_comercial" maxlength="100" required>
+                        {% if form.nombre_comercial.errors %}
+                            <div class="text-danger">{{ form.nombre_comercial.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="id_giro" class="form-label" style="color: #34495e;">Giro</label>
+                        <input type="text" class="form-control" id="id_giro" name="giro" maxlength="100">
+                        {% if form.giro.errors %}
+                            <div class="text-danger">{{ form.giro.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="id_direccion" class="form-label" style="color: #34495e;">Dirección</label>
+                        <input type="text" class="form-control" id="id_direccion" name="direccion" maxlength="255">
+                        {% if form.direccion.errors %}
+                            <div class="text-danger">{{ form.direccion.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="id_region" class="form-label" style="color: #34495e;">Región</label>
+                        <input type="text" class="form-control" id="id_region" name="region" maxlength="100">
+                        {% if form.region.errors %}
+                            <div class="text-danger">{{ form.region.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="id_ciudad" class="form-label" style="color: #34495e;">Ciudad</label>
+                        <input type="text" class="form-control" id="id_ciudad" name="ciudad" maxlength="100">
+                        {% if form.ciudad.errors %}
+                            <div class="text-danger">{{ form.ciudad.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="id_contacto" class="form-label" style="color: #34495e;">Contacto</label>
+                        <input type="text" class="form-control" id="id_contacto" name="contacto" maxlength="100">
+                        {% if form.contacto.errors %}
+                            <div class="text-danger">{{ form.contacto.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="id_telefono" class="form-label" style="color: #34495e;">Teléfono</label>
+                        <input type="tel" class="form-control" id="id_telefono" name="telefono" maxlength="15"
+                               placeholder="Ej: +56912345678" pattern="\+?\d{9,15}">
+                        {% if form.telefono.errors %}
+                            <div class="text-danger">{{ form.telefono.errors }}</div>
+                        {% endif %}
+                        <div class="invalid-feedback">Ingresa un teléfono válido (ej: +56912345678).</div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="id_correo_electronico" class="form-label" style="color: #34495e;">Correo Electrónico</label>
+                        <input type="email" class="form-control" id="id_correo_electronico" name="correo_electronico" maxlength="100"
+                               placeholder="Ej: taller@ejemplo.com">
+                        {% if form.correo_electronico.errors %}
+                            <div class="text-danger">{{ form.correo_electronico.errors }}</div>
+                        {% endif %}
+                        <div class="invalid-feedback">Ingresa un email válido.</div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="id_numero_interno" class="form-label" style="color: #34495e;">Número Interno</label>
+                        <input type="text" class="form-control" id="id_numero_interno" name="numero_interno" maxlength="20">
+                        {% if form.numero_interno.errors %}
+                            <div class="text-danger">{{ form.numero_interno.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="form-group">
+                        <label for="id_servicios" class="form-label" style="color: #34495e;">Servicios</label>
+                        <textarea class="form-control" id="id_servicios" name="servicios" rows="3"></textarea>
+                        {% if form.servicios.errors %}
+                            <div class="text-danger">{{ form.servicios.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="form-group">
+                        <label for="id_horario_atencion" class="form-label" style="color: #34495e;">Horario de Atención</label>
+                        <textarea class="form-control" id="id_horario_atencion" name="horario_atencion" rows="3"></textarea>
+                        {% if form.horario_atencion.errors %}
+                            <div class="text-danger">{{ form.horario_atencion.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-12 text-center mt-4">
+                    <button type="submit" class="btn btn-primary btn-lg" style="background-color: #27ae60; border: none;">Guardar Taller</button>
+                    <a href="{% url 'lista_talleres' %}" class="btn btn-secondary btn-lg ms-3" style="background-color: #7f8c8d; border: none;">Cancelar</a>
+                </div>
+            </div>
+            <p class="text-center mt-2"><em><span class="text-danger">*</span> Campos obligatorios</em></p>
+        </form>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    // Bootstrap validation
+    const forms = document.querySelectorAll('.needs-validation');
+    Array.from(forms).forEach(form => {
+        form.addEventListener('submit', event => {
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            form.classList.add('was-validated');
+        }, false);
+    });
+});
+</script>
+
+<style>
+    .card {
+        transition: box-shadow 0.3s ease;
+    }
+    .card:hover {
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    }
+    .form-control:focus {
+        border-color: #27ae60;
+        box-shadow: 0 0 5px rgba(39, 174, 96, 0.5);
+    }
+    .btn-primary:hover {
+        background-color: #219653;
+    }
+    .btn-secondary:hover {
+        background-color: #6c757d;
+    }
+    .invalid-feedback {
+        color: #e74c3c;
+    }
+</style>
+
+{% endblock %}

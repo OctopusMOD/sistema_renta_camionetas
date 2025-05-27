@@ -1,0 +1,33 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Flota Activa{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1>Flota Activa</h1>
+    {% if vehiculos %}
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Placa Patente</th>
+                    <th>Marca</th>
+                    <th>Modelo</th>
+                    <th>Año</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for vehiculo in vehiculos %}
+                    <tr>
+                        <td>{{ vehiculo.patente }}</td>
+                        <td>{{ vehiculo.marca }}</td>
+                        <td>{{ vehiculo.modelo }}</td>
+                        <td>{{ vehiculo.anio }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No hay vehículos activos.</p>
+    {% endif %}
+</div>
+{% endblock %}

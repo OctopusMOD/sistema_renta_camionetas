@@ -1,0 +1,243 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Agregar Cliente{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="mb-4">Agregar Cliente</h2>
+
+    {% if messages %}
+        <div class="mb-3">
+            {% for message in messages %}
+                <div class="alert {% if message.tags == 'success' %}alert-success{% else %}alert-danger{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <form method="post" class="needs-validation" novalidate>
+        {% csrf_token %}
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label for="{{ form.tipo_cliente.id_for_label }}" class="form-label">{{ form.tipo_cliente.label }}</label>
+                {{ form.tipo_cliente }}
+                {% if form.tipo_cliente.errors %}
+                    <div class="invalid-feedback d-block">
+                        {% for error in form.tipo_cliente.errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Campos para Persona Natural -->
+        <div class="row natural-fields" style="display: block;">
+            <div class="col-md-6 mb-3">
+                <label for="{{ form.rut.id_for_label }}" class="form-label">{{ form.rut.label }}</label>
+                {{ form.rut }}
+                {% if form.rut.errors %}
+                    <div class="invalid-feedback d-block">
+                        {% for error in form.rut.errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+            <div class="col-md-6 mb-3">
+                <label for="{{ form.nombre.id_for_label }}" class="form-label">{{ form.nombre.label }}</label>
+                {{ form.nombre }}
+                {% if form.nombre.errors %}
+                    <div class="invalid-feedback d-block">
+                        {% for error in form.nombre.errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        <div class="row natural-fields" style="display: block;">
+            <div class="col-md-6 mb-3">
+                <label for="{{ form.telefono.id_for_label }}" class="form-label">{{ form.telefono.label }}</label>
+                {{ form.telefono }}
+                {% if form.telefono.errors %}
+                    <div class="invalid-feedback d-block">
+                        {% for error in form.telefono.errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+            <div class="col-md-6 mb-3">
+                <label for="{{ form.correo.id_for_label }}" class="form-label">{{ form.correo.label }}</label>
+                {{ form.correo }}
+                {% if form.correo.errors %}
+                    <div class="invalid-feedback d-block">
+                        {% for error in form.correo.errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        <div class="row natural-fields" style="display: block;">
+            <div class="col-md-6 mb-3">
+                <label for="{{ form.direccion.id_for_label }}" class="form-label">{{ form.direccion.label }}</label>
+                {{ form.direccion }}
+                {% if form.direccion.errors %}
+                    <div class="invalid-feedback d-block">
+                        {% for error in form.direccion.errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+            <div class="col-md-6 mb-3">
+                <label for="{{ form.licencia_conducir.id_for_label }}" class="form-label">{{ form.licencia_conducir.label }}</label>
+                {{ form.licencia_conducir }}
+                {% if form.licencia_conducir.errors %}
+                    <div class="invalid-feedback d-block">
+                        {% for error in form.licencia_conducir.errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Campos para Empresa -->
+        <div class="row empresa-fields" style="display: none;">
+            <div class="col-md-6 mb-3">
+                <label for="{{ form.razon_social.id_for_label }}" class="form-label">{{ form.razon_social.label }}</label>
+                {{ form.razon_social }}
+                {% if form.razon_social.errors %}
+                    <div class="invalid-feedback d-block">
+                        {% for error in form.razon_social.errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+            <div class="col-md-6 mb-3">
+                <label for="{{ form.rut_empresa.id_for_label }}" class="form-label">{{ form.rut_empresa.label }}</label>
+                {{ form.rut_empresa }}
+                {% if form.rut_empresa.errors %}
+                    <div class="invalid-feedback d-block">
+                        {% for error in form.rut_empresa.errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        <div class="row empresa-fields" style="display: none;">
+            <div class="col-md-6 mb-3">
+                <label for="{{ form.contacto_principal.id_for_label }}" class="form-label">{{ form.contacto_principal.label }}</label>
+                {{ form.contacto_principal }}
+                {% if form.contacto_principal.errors %}
+                    <div class="invalid-feedback d-block">
+                        {% for error in form.contacto_principal.errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+            <div class="col-md-6 mb-3">
+                <label for="{{ form.telefono_empresa.id_for_label }}" class="form-label">{{ form.telefono_empresa.label }}</label>
+                {{ form.telefono_empresa }}
+                {% if form.telefono_empresa.errors %}
+                    <div class="invalid-feedback d-block">
+                        {% for error in form.telefono_empresa.errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        <div class="row empresa-fields" style="display: none;">
+            <div class="col-md-6 mb-3">
+                <label for="{{ form.correo_empresa.id_for_label }}" class="form-label">{{ form.correo_empresa.label }}</label>
+                {{ form.correo_empresa }}
+                {% if form.correo_empresa.errors %}
+                    <div class="invalid-feedback d-block">
+                        {% for error in form.correo_empresa.errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+            <div class="col-md-6 mb-3">
+                <label for="{{ form.giro.id_for_label }}" class="form-label">{{ form.giro.label }}</label>
+                {{ form.giro }}
+                {% if form.giro.errors %}
+                    <div class="invalid-feedback d-block">
+                        {% for error in form.giro.errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        <div class="row empresa-fields" style="display: none;">
+            <div class="col-md-12 mb-3">
+                <label for="{{ form.direccion_fiscal.id_for_label }}" class="form-label">{{ form.direccion_fiscal.label }}</label>
+                {{ form.direccion_fiscal }}
+                {% if form.direccion_fiscal.errors %}
+                    <div class="invalid-feedback d-block">
+                        {% for error in form.direccion_fiscal.errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-primary">Guardar Cliente</button>
+            <a href="{% url 'lista_alquileres' %}" class="btn btn-secondary">Cancelar</a>
+        </div>
+    </form>
+</div>
+
+<script>
+    function toggleFields(tipo) {
+        const naturalFields = document.querySelectorAll('.natural-fields');
+        const empresaFields = document.querySelectorAll('.empresa-fields');
+
+        if (tipo === 'natural') {
+            naturalFields.forEach(field => field.style.display = 'block');
+            empresaFields.forEach(field => field.style.display = 'none');
+        } else if (tipo === 'empresa') {
+            naturalFields.forEach(field => field.style.display = 'none');
+            empresaFields.forEach(field => field.style.display = 'block');
+        }
+    }
+
+    // Inicializar al cargar la página
+    document.addEventListener('DOMContentLoaded', function() {
+        const tipoSelect = document.querySelector('#id_tipo_cliente');
+        if (tipoSelect) {
+            toggleFields(tipoSelect.value);
+            tipoSelect.addEventListener('change', function() {
+                toggleFields(this.value);
+            });
+        }
+    });
+
+    // Validación del formulario con Bootstrap
+    (function () {
+        'use strict';
+        const forms = document.querySelectorAll('.needs-validation');
+        Array.from(forms).forEach(form => {
+            form.addEventListener('submit', event => {
+                if (!form.checkValidity()) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            }, false);
+        });
+    })();
+</script>
+{% endblock %}

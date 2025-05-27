@@ -9,10 +9,11 @@ db.sqlite3
 local_settings.py
 .env
 
-# Migraciones (temporalmente, ya que eliminaste migraciones)
+# Migraciones de Django (ignora todo menos __init__.py)
 core/migrations/
+!core/migrations/__init__.py
 
-# Carpeta de entorno virtual (si usas uno)
+# Entornos virtuales
 venv/
 env/
 
@@ -24,3 +25,13 @@ env/
 
 # Archivos de VS Code
 .vscode/
+
+# Archivos de PyCharm
+.idea/
+
+# Archivos de MacOS
+.DS_Store
+
+# Archivos estáticos generados por collectstatic
+staticfiles/
+static/

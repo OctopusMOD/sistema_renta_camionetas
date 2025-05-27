@@ -3,16 +3,54 @@
 {% block title %}Lista de Alquileres{% endblock %}
 
 {% block content %}
-    <h1>Lista de Alquileres</h1>
-    <a href="{% url 'agregar_alquiler' %}">Agregar Alquiler</a>
-    <ul>
-        {% for alquiler in alquileres %}
-            <li>
-                {{ alquiler }} - Inicio: {{ alquiler.fecha_inicio }} - Fin: {{ alquiler.fecha_fin }} - Costo: ${{ alquiler.costo_total }}
-                <a href="{% url 'devolver_alquiler' alquiler.id %}">Devolver</a>
-            </li>
-        {% empty %}
-            <li>No hay alquileres registrados.</li>
-        {% endfor %}
-    </ul>
+<div class="container mt-5">
+    <h2 class="mb-4">Lista de Alquileres</h2>
+    <div class="mb-3 d-flex gap-2">
+        <a href="{% url 'agregar_alquiler' %}" class="btn btn-primary">Agregar Alquiler</a>
+        <a href="{% url 'agregar_cliente' %}" class="btn btn-secondary">Agregar Cliente</a>
+    </div>
+
+    {% if alquileres %}
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>Contrato N°</th>
+                        <th>Vehículo</th>
+                        <th>Cliente</th>
+                        <th>Fecha de Entrega</th>
+                        <th>Fecha de Recepción</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for alquiler in alquileres %}
+                        <tr>
+                            <td>Contrato N° {{ alquiler.numero_alquiler|default:alquiler.id }}</td>
+                            <td>{{ alquiler.vehiculo.patente }}</td>
+                            <td>{{ alquiler.cliente.nombre|default:alquiler.cliente.razon_social|default:"Sin cliente" }}</td>
+                            <td>{{ alquiler.fecha_inicio|date:"Y-m-d" }}</td>
+                            <td>{{ alquiler.fecha_termino|date:"Y-m-d"|default:"Pendiente" }}</td>
+                            <td>{{ alquiler.estado }}</td>
+                            <td>
+                                <a href="{% url 'editar_alquiler' alquiler.id %}" class="btn btn-warning btn-sm">Editar</a>
+                                {% if alquiler.estado == 'activo' %}
+                                    <a href="{% url 'devolver_alquiler' alquiler.id %}" class="btn btn-success btn-sm">Devolver</a>
+                                {% endif %}
+                                <a href="{% url 'eliminar_alquiler' alquiler.id %}" class="btn btn-danger btn-sm" onclick="return confirm('¿Estás seguro de eliminar este alquiler?')">Eliminar</a>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center">No hay alquileres registrados.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="alert alert-info">No hay alquileres registrados.</div>
+    {% endif %}
+</div>
 {% endblock %}

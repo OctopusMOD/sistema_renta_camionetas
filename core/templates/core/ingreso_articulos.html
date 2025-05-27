@@ -1,0 +1,246 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Ingreso de Artículos{% endblock %}
+
+{% block content %}
+    <div class="container mt-5">
+        <h1 class="my-4 text-center">Ingreso de Artículos</h1>
+
+        <!-- Mensajes -->
+        {% if messages %}
+            <div class="mb-4">
+                {% for message in messages %}
+                    <div class="alert alert-{% if message.tags == 'success' %}success{% else %}danger{% endif %} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <!-- Formulario para Ingresar Artículos -->
+        <div class="bg-light py-4 mb-4">
+            <form method="post">
+                {% csrf_token %}
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label for="proveedor" class="form-label">RUT del Proveedor</label>
+                        <select name="proveedor" id="proveedor" class="form-select" required>
+                            <option value="">Seleccione un proveedor</option>
+                            {% for proveedor in proveedores %}
+                                <option value="{{ proveedor.id }}">{{ proveedor.nombre }} ({{ proveedor.rut|default:"Sin RUT" }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="numero_factura" class="form-label">N° Factura</label>
+                        <input type="text" name="numero_factura" id="numero_factura" class="form-control" required>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-bordered" id="tabla-articulos">
+                        <thead class="table-light">
+                            <tr>
+                                <th>CÓDIGO</th>
+                                <th>CATEGORÍA</th>
+                                <th>ARTÍCULO</th>
+                                <th>CANTIDAD</th>
+                                <th>VALOR UNITARIO</th>
+                                <th>TOTAL</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="articulo-row">
+                                <td><input type="text" name="codigo[]" class="form-control codigo" required></td>
+                                <td>
+                                    <select name="categoria[]" class="form-select categoria" required>
+                                        <option value="">Seleccione una categoría</option>
+                                        {% for categoria in categorias %}
+                                            <option value="{{ categoria }}">{{ categoria }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </td>
+                                <td><input type="text" name="articulo[]" class="form-control articulo" required></td>
+                                <td><input type="number" name="cantidad[]" class="form-control cantidad" min="1" value="1" required></td>
+                                <td><input type="number" name="valor_unitario[]" class="form-control valor-unitario" min="0" step="0.01" required></td>
+                                <td><input type="text" class="form-control total" readonly></td>
+                                <td><button type="button" class="btn btn-danger btn-sm remove-row">Eliminar</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="text-center mb-3">
+                    <button type="button" class="btn btn-secondary" id="add-row">Agregar Fila</button>
+                </div>
+                <div class="text-center">
+                    <button type="submit" class="btn btn-primary">Guardar</button>
+                    <a href="{% url 'bodega' %}" class="btn btn-secondary">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal para pedir código -->
+    <div class="modal fade" id="codigoModal" tabindex="-1" aria-labelledby="codigoModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="codigoModalLabel">Asociar Código</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>El artículo "<span id="modalArticulo"></span>" no está asociado a un código. Por favor, ingrese un código para asociarlo.</p>
+                    <div class="mb-3">
+                        <label for="modalCodigo" class="form-label">Código *</label>
+                        <input type="text" class="form-control" id="modalCodigo" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="saveCodigo">Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript para la tabla dinámica -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const tabla = document.getElementById('tabla-articulos').getElementsByTagName('tbody')[0];
+            const addRowButton = document.getElementById('add-row');
+            let currentRow = null;
+            let currentInput = null;
+
+            // Plantilla para una nueva fila
+            const rowTemplate = `
+                <tr class="articulo-row">
+                    <td><input type="text" name="codigo[]" class="form-control codigo" required></td>
+                    <td>
+                        <select name="categoria[]" class="form-select categoria" required>
+                            <option value="">Seleccione una categoría</option>
+                            {% for categoria in categorias %}
+                                <option value="{{ categoria }}">{{ categoria }}</option>
+                            {% endfor %}
+                        </select>
+                    </td>
+                    <td><input type="text" name="articulo[]" class="form-control articulo" required></td>
+                    <td><input type="number" name="cantidad[]" class="form-control cantidad" min="1" value="1" required></td>
+                    <td><input type="number" name="valor_unitario[]" class="form-control valor-unitario" min="0" step="0.01" required></td>
+                    <td><input type="text" class="form-control total" readonly></td>
+                    <td><button type="button" class="btn btn-danger btn-sm remove-row">Eliminar</button></td>
+                </tr>
+            `;
+
+            // Agregar una nueva fila
+            addRowButton.addEventListener('click', function() {
+                const newRow = tabla.insertRow();
+                newRow.innerHTML = rowTemplate;
+                attachEventListeners(newRow);
+            });
+
+            // Eliminar una fila
+            tabla.addEventListener('click', function(e) {
+                if (e.target.classList.contains('remove-row')) {
+                    const row = e.target.closest('tr');
+                    if (tabla.rows.length > 1) {  // Asegurarse de que siempre quede al menos una fila
+                        row.remove();
+                    }
+                }
+            });
+
+            // Calcular el total
+            function calculateTotal(row) {
+                const cantidad = parseInt(row.querySelector('.cantidad').value) || 0;
+                const valorUnitario = parseFloat(row.querySelector('.valor-unitario').value) || 0;
+                const total = cantidad * valorUnitario;
+                row.querySelector('.total').value = total.toFixed(2);
+            }
+
+            // Buscar producto por código o nombre
+            async function fetchProducto(input, isCodigo) {
+                const value = input.value.trim();
+                if (!value) return;
+
+                const param = isCodigo ? 'codigo' : 'nombre';
+                const url = `{% url 'buscar_producto' %}?${param}=${encodeURIComponent(value)}`;
+                const response = await fetch(url);
+                const data = await response.json();
+
+                const row = input.closest('tr');
+                const codigoInput = row.querySelector('.codigo');
+                const articuloInput = row.querySelector('.articulo');
+                const categoriaSelect = row.querySelector('.categoria');
+                const valorUnitarioInput = row.querySelector('.valor-unitario');
+
+                if (data.exists) {
+                    // Si el producto existe, verificar conflictos
+                    if (isCodigo) {
+                        if (articuloInput.value && articuloInput.value !== data.nombre) {
+                            alert(`El código "${value}" ya está asociado al artículo "${data.nombre}".`);
+                            codigoInput.value = ''; // Limpiar código si hay conflicto
+                            return;
+                        }
+                        articuloInput.value = data.nombre;
+                    } else {
+                        if (codigoInput.value && codigoInput.value !== data.codigo) {
+                            alert(`El artículo "${value}" ya está asociado al código "${data.codigo}".`);
+                            articuloInput.value = ''; // Limpiar artículo si hay conflicto
+                            return;
+                        }
+                        codigoInput.value = data.codigo;
+                    }
+                    categoriaSelect.value = data.categoria || '';
+                    valorUnitarioInput.value = data.valor_unitario || 0;
+                } else {
+                    if (isCodigo) {
+                        // Si el código no existe, permitir ingreso manual del artículo
+                        articuloInput.value = articuloInput.value || '';
+                    } else {
+                        // Si el artículo no existe, pedir código
+                        currentRow = row;
+                        currentInput = articuloInput;
+                        document.getElementById('modalArticulo').textContent = value;
+                        document.getElementById('modalCodigo').value = codigoInput.value || '';
+                        const modal = new bootstrap.Modal(document.getElementById('codigoModal'));
+                        modal.show();
+                    }
+                }
+                calculateTotal(row);
+            }
+
+            // Asignar eventos a los inputs de una fila
+            function attachEventListeners(row) {
+                const codigoInput = row.querySelector('.codigo');
+                const articuloInput = row.querySelector('.articulo');
+                const cantidadInput = row.querySelector('.cantidad');
+                const valorUnitarioInput = row.querySelector('.valor-unitario');
+
+                // Cambiar de 'input' a 'change' para evitar disparos constantes
+                codigoInput.addEventListener('change', () => fetchProducto(codigoInput, true));
+                articuloInput.addEventListener('change', () => fetchProducto(articuloInput, false));
+                cantidadInput.addEventListener('input', () => calculateTotal(row));
+                valorUnitarioInput.addEventListener('input', () => calculateTotal(row));
+            }
+
+            // Guardar código desde el modal
+            document.getElementById('saveCodigo').addEventListener('click', function() {
+                const modalCodigo = document.getElementById('modalCodigo').value.trim();
+                if (!modalCodigo) {
+                    alert('Por favor, ingrese un código.');
+                    return;
+                }
+                if (currentRow) {
+                    const codigoInput = currentRow.querySelector('.codigo');
+                    codigoInput.value = modalCodigo;
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('codigoModal'));
+                    modal.hide();
+                }
+            });
+
+            // Asignar eventos a la primera fila
+            attachEventListeners(tabla.rows[0]);
+        });
+    </script>
+{% endblock %}

@@ -3,11 +3,27 @@
 {% block title %}Iniciar Sesión{% endblock %}
 
 {% block content %}
-    <h1>Iniciar Sesión</h1>
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit" class="btn">Iniciar Sesión</button>
-    </form>
-    <p>¿No tienes cuenta? <a href="{% url 'register' %}">Regístrate</a></p>
+<div class="d-flex justify-content-center align-items-center min-vh-100 bg-light">
+    <div class="card p-4 shadow" style="width: 100%; max-width: 400px;">
+        <h1 class="text-center mb-4">Iniciar Sesión</h1>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{% if message.tags == 'success' %}success{% else %}danger{% endif %} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-primary w-100 mb-3">Iniciar Sesión</button>
+        </form>
+        <p class="text-center">
+            ¿No tienes cuenta? <a href="{% url 'register' %}" class="text-decoration-none">Regístrate</a>
+        </p>
+    </div>
+</div>
 {% endblock %}

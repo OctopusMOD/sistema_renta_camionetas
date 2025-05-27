@@ -1,0 +1,29 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Panel Principal{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-center align-items-center min-vh-100 bg-light">
+    <div class="text-center p-4 bg-white shadow-sm rounded" style="max-width: 800px;">
+        <h1 class="mb-4">Sistema de Renta de Camionetas</h1>
+        <p class="mb-4">¡Bienvenido! Son las 07:12 PM -04 del lunes, 26 de mayo de 2025. Gestiona tus alquileres y vehículos con facilidad.</p>
+        <div class="row row-cols-1 row-cols-md-5 g-4" style="max-width: 1200px;">
+            <div class="col">
+                <a href="{% url 'lista_alquileres' %}" class="btn btn-primary btn-lg w-100">Alquileres</a>
+            </div>
+            <div class="col">
+                <a href="{% url 'lista_vehiculos' %}" class="btn btn-primary btn-lg w-100">Vehículos</a>
+            </div>
+            <div class="col">
+                <a href="{% url 'lista_mantenimientos' %}" class="btn btn-primary btn-lg w-100">Mantenimientos</a>
+            </div>
+            <div class="col">
+                <a href="{% url 'bodega' %}" class="btn btn-primary btn-lg w-100">Bodega</a>
+            </div>
+            <div class="col">
+                <a href="{% url 'alertas' %}" class="btn btn-primary btn-lg w-100">Alertas</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

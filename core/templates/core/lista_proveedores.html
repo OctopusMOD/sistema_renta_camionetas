@@ -1,0 +1,55 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Lista de Proveedores{% endblock %}
+
+{% block content %}
+    <div class="container mt-5">
+        <h1 class="my-4 text-center">Lista de Proveedores</h1>
+
+        <!-- Mensajes -->
+        {% if messages %}
+            <div class="mb-4">
+                {% for message in messages %}
+                    <div class="alert alert-{% if message.tags == 'success' %}success{% else %}danger{% endif %} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <div class="mb-4 text-center">
+            <a href="{% url 'agregar_proveedor' %}" class="btn btn-primary me-2">Agregar Proveedor</a>
+            <a href="{% url 'bodega' %}" class="btn btn-secondary">Volver a Bodega</a>
+        </div>
+
+        <div class="table-responsive">
+            {% if proveedores %}
+                <table class="table table-bordered table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Teléfono</th>
+                            <th>Correo</th>
+                            <th>Dirección</th>
+                            <th>Contacto</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for proveedor in proveedores %}
+                            <tr>
+                                <td>{{ proveedor.nombre }}</td>
+                                <td>{{ proveedor.telefono }}</td>
+                                <td>{{ proveedor.correo }}</td>
+                                <td>{{ proveedor.direccion }}</td>
+                                <td>{{ proveedor.contacto }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <div class="alert alert-info">No hay proveedores registrados.</div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,65 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Bodega{% endblock %}
+
+{% block content %}
+    <div class="container mt-5">
+        <h1 class="my-4 text-center">Bodega</h1>
+
+        <!-- Mensajes -->
+        {% if messages %}
+            <div class="mb-4">
+                {% for message in messages %}
+                    <div class="alert alert-{% if message.tags == 'success' %}success{% else %}danger{% endif %} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <!-- Botones de Navegación -->
+        <div class="mb-4 text-center">
+            <a href="{% url 'lista_proveedores' %}" class="btn btn-primary me-2">Gestionar Proveedores</a>
+            <a href="{% url 'ingreso_articulos' %}" class="btn btn-primary">Ingresar Artículos</a>
+        </div>
+
+        <!-- Lista de Productos -->
+        <div class="table-responsive">
+            <h3 class="mb-3">Inventario Actual</h3>
+            {% if productos %}
+                <table class="table table-bordered table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Categoría</th>
+                            <th>Código de Referencia</th>
+                            <th>Stock</th>
+                            <th>Valor Unitario</th>
+                            <th>Proveedor</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for producto in productos %}
+                            <tr>
+                                <td>{{ producto.nombre }}</td>
+                                <td>{{ producto.categoria }}</td>
+                                <td>{{ producto.codigo_referencia }}</td>
+                                <td>{{ producto.unidades }}</td>
+                                <td>${{ producto.valor_unitario }}</td>
+                                <td>{{ producto.proveedor.nombre|default:"Sin proveedor" }}</td>
+                                <td>
+                                    <a href="{% url 'editar_producto' pk=producto.pk %}" class="btn btn-sm btn-warning">Editar</a>
+                                    <a href="{% url 'eliminar_producto' pk=producto.pk %}" class="btn btn-sm btn-danger" onclick="return confirm('¿Estás seguro de que deseas eliminar este producto?')">Eliminar</a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <div class="alert alert-info">No hay productos registrados.</div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
